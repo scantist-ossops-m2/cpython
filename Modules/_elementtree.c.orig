@@ -2546,11 +2546,6 @@ xmlparser_getattro(XMLParserObject* self, PyObject* nameobj)
     } else {
         return PyObject_GenericGetAttr((PyObject*) self, nameobj);
     }
-    /* expat < 2.1.0 has no XML_SetHashSalt() */
-    if (EXPAT(SetHashSalt) != NULL) {
-        EXPAT(SetHashSalt)(self->parser,
-                           (unsigned long)_Py_HashSecret.prefix);
-    }
 
     Py_INCREF(res);
     return res;
