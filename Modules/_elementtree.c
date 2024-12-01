@@ -2589,6 +2589,11 @@ expat_parse(XMLParserObject* self, char* data, int data_len, int final)
             );
         return NULL;
     }
+    /* expat < 2.1.0 has no XML_SetHashSalt() */
+    if (EXPAT(SetHashSalt) != NULL) {
+        EXPAT(SetHashSalt)(self->parser,
+                           (unsigned long)_Py_HashSecret.prefix);
+    }
 
     Py_RETURN_NONE;
 }
