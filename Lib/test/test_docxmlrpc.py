@@ -1,5 +1,6 @@
 from xmlrpc.server import DocXMLRPCServer
 import http.client
+import re
 import sys
 from test import support
 threading = support.import_module('threading')
@@ -21,6 +22,21 @@ def make_request_and_skipIf(condition, reason):
             raise unittest.SkipTest(reason)
         return make_request_and_skip
     return decorator
+
+    def test_server_title_escape(self):
+        # bpo-38243: Ensure that the server title and documentation
+        # are escaped for HTML.
+        self.serv.set_server_title('test_title<script>')
+        self.serv.set_server_documentation('test_documentation<script>')
+        self.assertEqual('test_title<script>', self.serv.server_title)
+        self.assertEqual('test_documentation<script>',
+                self.serv.server_documentation)
+
+        generated = self.serv.generate_html_documentation()
+        title = re.search(r'<title>(.+?)</title>', generated).group()
+        documentation = re.search(r'<p><tt>(.+?)</tt></p>', generated).group()
+        self.assertEqual('<title>Python: test_title&lt;script&gt;</title>', title)
+        self.assertEqual('<p><tt>test_documentation&lt;script&gt;</tt></p>', documentation)
 
 
 def server(evt, numrequests):
